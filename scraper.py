@@ -65,7 +65,7 @@ def get_next_url(soup):
 
 def find_body(soup):
     article = soup.find(id="arrticle")
-    ps = map(lambda p: f"<p>{p.text.strip()}</p>", article.find_all("p"))
+    ps = map(str, article.find_all("p"))
     return "\n".join(ps)
 
 
