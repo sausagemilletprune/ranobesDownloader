@@ -10,7 +10,7 @@ CHROMIUM_PATH = "/Applications/Chromium.app/Contents/MacOS/Chromium"
 
 def main():
     if len(sys.argv) < 2:
-        raise RuntimeError(f"Must include 1 argument: URL\nUsage: `python {sys.argv[0]} URL")
+        raise RuntimeError(f"Must include 1 argument: URL\nUsage: `python3 {sys.argv[0]} URL")
 
     URL = sys.argv[1]
     driver = create_chromium_driver()
