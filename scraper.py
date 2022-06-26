@@ -9,33 +9,43 @@ CHROMIUM_PATH = "/Applications/Chromium.app/Contents/MacOS/Chromium"
 
 
 def main():
-    if len(sys.argv) < 2:
-        raise RuntimeError(f"Must include 1 argument: URL\nUsage: `python3 {sys.argv[0]} URL")
+    check_arguments()
 
     URL = sys.argv[1]
     driver = create_chromium_driver()
-
     storyname = get_story_name(URL, driver)
+
     bookPath = f"{storyname}.html"
     print(bookPath)
 
     while URL:
-        pageContent = get_page_content(URL, driver)
-
-        soup = BeautifulSoup(pageContent, "html.parser")
-
-        title = find_title(soup)[:-len(f" | {storyname}")]
-        body = find_body(soup)
-
-        chapter = f'<h1 class="chapter">{title}</h1>\n' \
-                  f'<div class="chapter-inner chapter-content">{body}</div>\n' \
-                  f'<!--{URL}-->\n\n'
-
-        print(f"Scraped chapter {title}")
+        soup = BeautifulSoup(get_page_content(URL, driver), "html.parser")
+        append_chapter_to_file(bookPath, parse_chapter(URL, soup, storyname))
         URL = get_next_url(soup)
 
-        with open(bookPath, "a") as file:
-            file.write(chapter)
+
+def check_arguments():
+    if len(sys.argv) < 2:
+        raise RuntimeError(f"Must include 1 argument: URL\nUsage: `python3 {sys.argv[0]} URL")
+
+
+def append_chapter_to_file(bookPath, chapter):
+    with open(bookPath, "a") as file:
+        file.write(chapter)
+
+
+def parse_chapter(URL, soup, storyname):
+    title = find_title(soup, storyname)
+    body = find_body(soup)
+    chapter = create_chapter_string(URL, body, title)
+    print(f"Scraped chapter {title}")
+    return chapter
+
+
+def create_chapter_string(URL, body, title):
+    return f'<h1 class="chapter">{title}</h1>\n' \
+           f'<div class="chapter-inner chapter-content">{body}</div>\n' \
+           f'<!--{URL}-->\n\n'
 
 
 def get_story_name(URL, driver):
@@ -55,12 +65,12 @@ def get_next_url(soup):
 
 def find_body(soup):
     article = soup.find(id="arrticle")
-    ps = map(lambda p: f"<p>{p.text.strip()}</p>", article.find_all("p"))
+    ps = map(str, article.find_all("p"))
     return "\n".join(ps)
 
 
-def find_title(soup):
-    return soup.find(id="dle-content").find_all("h1", class_="title")[0].text.strip()
+def find_title(soup, storyname):
+    return soup.find(id="dle-content").find_all("h1", class_="title")[0].text.strip()[:-len(f" | {storyname}")]
 
 
 def find_btn_next(soup):
