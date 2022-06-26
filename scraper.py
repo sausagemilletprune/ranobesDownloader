@@ -4,8 +4,14 @@ from selenium.webdriver.chrome.service import Service
 from chromedriver_py import binary_path
 import sys
 
+# MODIFY THIS TO YOUR OS
+CHROMIUM_PATH = "/Applications/Chromium.app/Contents/MacOS/Chromium"
+
 
 def main():
+    if len(sys.argv) < 2:
+        raise RuntimeError(f"Must include 1 argument: URL\nUsage: `python {sys.argv[0]} URL")
+
     URL = sys.argv[1]
     driver = create_chromium_driver()
 
@@ -64,7 +70,7 @@ def find_btn_next(soup):
 def create_chromium_driver():
     service_object = Service(binary_path)
     options = webdriver.ChromeOptions()
-    options.binary_location = "/Applications/Chromium.app/Contents/MacOS/Chromium"
+    options.binary_location = CHROMIUM_PATH
     return webdriver.Chrome(service=service_object, options=options)
 
 
