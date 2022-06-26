@@ -24,7 +24,7 @@ def main():
 
         soup = BeautifulSoup(pageContent, "html.parser")
 
-        title = find_title(soup)[:-len(" | Lord of the Mysteries")]
+        title = find_title(soup)[:-len(f" | {storyname}")]
         body = find_body(soup)
 
         chapter = f'<h1 class="chapter">{title}</h1>\n' \
